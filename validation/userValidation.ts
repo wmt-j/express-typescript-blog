@@ -1,5 +1,4 @@
-import { body, check, param } from "express-validator";
-import mongoose from "mongoose";
+import { check, param } from "express-validator";
 import User from "../models/userModel";
 
 export const newUserCheck = () => [
@@ -11,7 +10,12 @@ export const newUserCheck = () => [
 export const updateUserCheck = () => [
     check('email').isEmail().withMessage("Email not valid!"),
     check('age').isInt({ min: 0, max: 150 }),
-    check('userId').isMongoId()
+    check('userId').isMongoId().custom(value => {
+        const user = User.findOne({ id: value, status: true })
+        if (!user) {
+            return Promise.reject("No user found with that ID.")
+        }
+    })
 ]
 
 export const deleteUserCheck = () => [
