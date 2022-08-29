@@ -11,8 +11,8 @@ export const newUserCheck = () => [
 export const updateUserCheck = () => [
     check('email').optional().isEmail().withMessage(messages.invalidEmail),
     check('age').optional().isInt({ min: 0, max: 150 }),
-    check('userId').isMongoId().bail().custom(value => {
-        const user = User.findOne({ id: value, status: true })
+    param('userId').isMongoId().bail().custom(async value => {
+        const user = await User.findOne({ id: value, status: true })
         if (!user) {
             return Promise.reject(messages.userMissing)
         }
@@ -22,9 +22,8 @@ export const updateUserCheck = () => [
 export const deleteUserCheck = () => [
     param('userId').custom(async value => {
         const user = await User.findOne({ _id: value, deleted: false })
-        console.log(user);
         if (!user) {
-            return Promise.reject("No user found with that ID.")
+            return Promise.reject(messages.userMissing)
         }
     })
 ]

@@ -4,7 +4,7 @@ import messages from "../utils/messages";
 
 export const newBlogCheck = () => [
     body('title').isLength({ min: 5, max: 50 }),
-    body('body').isLength({ min: 10, max: 500 })
+    body('body').isLength({ min: 10, max: 5000 })
 ]
 
 export const updateBlogCheck = () => [

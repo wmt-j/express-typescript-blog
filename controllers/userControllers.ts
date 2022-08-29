@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express"
+import Role from "../models/roleModel"
 import User from "../models/userModel"
 import { CustomError } from "../utils/customError"
 import messages from "../utils/messages"
-import { IUser } from "../utils/schemaInterfaces"
+import { IUser, IRole } from "../utils/schemaInterfaces"
 import StatusCode from "../utils/statusCode"
 
 class userController {
@@ -30,8 +31,9 @@ class userController {
 
     newUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { name, email, age } = req.body
-            const newUser: IUser = await User.create({ name, email, age })
+            const { name, email, age, role, password }: { name: String; email: String; age: Number | null, role: IRole[] | null, password: String } = req.body
+            const newUser: IUser = await User.create({ name, email, age, role, password })
+            role?.map(el => Role.findByIdAndUpdate(el, { $push: { user: newUser.id } }).then((data) => console.log(data)))
             res.status(StatusCode.SuccessCreated).json({ newUser })
         } catch (error) {
             console.log(error)
@@ -42,8 +44,8 @@ class userController {
     updateUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params
-            const { name, email, age } = req.body
-            const updatedUser: IUser | null = await User.findByIdAndUpdate(userId, { name, email, age }, { runValidators: true, new: true })
+            const { name, email, age, role } = req.body
+            const updatedUser: IUser | null = await User.findByIdAndUpdate(userId, { name, email, age, role }, { runValidators: true, new: true })
             res.status(StatusCode.SuccessOK).json({ updatedUser })
         } catch (error) {
             console.log(error)
@@ -54,7 +56,10 @@ class userController {
     deleteUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params
-            await User.findByIdAndUpdate(userId, { deleted: true })
+            const user = await User.findById(userId)
+            if (!user) return next(new CustomError([messages.userMissing], 404))
+            user.deleted = true
+            await user?.save()
             res.status(StatusCode.SuccessNoContent).json({ message: "Deleted!" })
         } catch (error) {
             console.log(error)

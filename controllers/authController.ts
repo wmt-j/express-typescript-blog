@@ -7,8 +7,8 @@ import { CustomError } from "../utils/customError";
 import StatusCode from "../utils/statusCode";
 import messages from "../utils/messages";
 
-function generateAccessToken(user: IUser,) {
-    const token = jwt.sign({ name: user.name, email: user.email }, <Secret>process.env.TOKEN_SECRET, { expiresIn: '3600s' })
+function generateAccessToken(user: IUser) {
+    const token = jwt.sign({ id: user._id?.toString(), name: user.name, email: user.email }, <Secret>process.env.TOKEN_SECRET, { expiresIn: '3600s' })
     return token
 }
 

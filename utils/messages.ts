@@ -12,5 +12,7 @@ export default {
     userMissing: "User not found.",
     invalidCredentials: "Email or password is incorrect!",
     invalidEmail: "Email not valid!",
-    emailExists: "Email already in use!"
+    emailExists: "Email already in use!",
+    pageNotFound: "Page not found.",
+    accessDenied: "Access Denied."
 }

@@ -6,6 +6,8 @@ import authRouter from './routes/authRoutes'
 import './utils/mongooseConnection'
 import handleError from './middlewares/handleError'
 import rateLimiter from './middlewares/rateLimiter'
+import { CustomError } from './utils/customError'
+import messages from './utils/messages'
 const app: Express = express()
 
 app.use(rateLimiter)
@@ -17,7 +19,7 @@ app.use('/user', userRouter)
 app.use('/blog', blogRouter)
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
-    next({ status: 404, errors: [{ message: "Page Not Found!" }] })
+    next(new CustomError([messages.pageNotFound], 404))
 })
 
 app.use(handleError)

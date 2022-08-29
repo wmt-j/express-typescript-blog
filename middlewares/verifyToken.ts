@@ -10,7 +10,7 @@ const verifyToken = async (req: IGetUserAuthInfoRequest, res: Response, next: Ne
         if (!authHeaders) return next(new CustomError([messages.signinRequired], 401))
         const token: string = authHeaders.split('Bearer ')[1]
         const data: jwt.JwtPayload = <jwt.JwtPayload>await jwt.verify(token, <string>process.env.TOKEN_SECRET)
-        req.user = { id: data._id, name: data.name, email: data.email }
+        req.user = { id: data.id, name: data.name, email: data.email }
         next()
     } catch (error) {
         console.log(error);

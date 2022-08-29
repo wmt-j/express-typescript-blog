@@ -1,13 +1,20 @@
 import { Request } from "express"
 import mongoose from "mongoose"
 
+export interface IRole {
+    name: String,
+    user?: IUser
+}
+
 export interface IUser {
+    _id?: String,
     id?: String,
     name?: String,
     email?: String,
     age?: Number,
     deleted?: Boolean,
-    password?: String
+    password?: String,
+    role?: IRole[]
 }
 
 export interface IBlog {
