@@ -7,7 +7,7 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     email: { type: String, unique: true },
     password: { type: String, required: true },
     age: Number,
-    status: { type: Boolean, default: false }
+    deleted: { type: Boolean, default: false }
 })
 
 userSchema.pre('save', async function (next) {

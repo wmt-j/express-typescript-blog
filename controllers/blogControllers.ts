@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import Blog from '../models/blogModel'
-import { IBlog } from '../utils/schemaInterfaces'
+import { IBlog, IGetUserAuthInfoRequest } from '../utils/schemaInterfaces'
 import moment, { Moment } from 'moment'
+import { CustomError } from '../utils/customError'
+import StatusCode from '../utils/statusCode'
+import messages from '../utils/messages'
 
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,19 +22,25 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
         }
         const blogs: IBlog[] | [] = await Blog.find(queryObj).populate('author')
 
-        res.status(200).json({ blogs })
+        res.status(StatusCode.SuccessOK).json({ blogs })
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }
 
-export const newBlog = async (req: Request, res: Response, next: NextFunction) => {
+export const newBlog = async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     try {
-        const { title, body, userId: author } = req.body
+        const { title, body } = req.body
+        if (!req.user) {
+            return next(new CustomError([messages.signinRequired], 401))
+        }
+        const author = req?.user?.id
         const newBlog: IBlog = await Blog.create({ title, body, author })
-        res.status(201).json({ newBlog })
+        res.status(StatusCode.SuccessCreated).json({ newBlog })
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }
 
@@ -39,9 +48,10 @@ export const getOne = async (req: Request, res: Response, next: NextFunction) =>
     try {
         const { blogId } = req.params
         const blog: IBlog | null = await Blog.findById(blogId).populate('author')
-        res.status(200).json({ blog })
+        res.status(StatusCode.SuccessOK).json({ blog })
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }
 
@@ -50,9 +60,10 @@ export const updateBlog = async (req: Request, res: Response, next: NextFunction
         const { title, body } = req.body
         const { blogId } = req.params
         const updatedBlog: IBlog | null = await Blog.findByIdAndUpdate(blogId, { title, body }, { runValidators: true, new: true })
-        res.status(201).json({ updatedBlog })
+        res.status(StatusCode.SuccessCreated).json({ updatedBlog })
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }
 
@@ -60,8 +71,9 @@ export const deleteBlog = async (req: Request, res: Response, next: NextFunction
     try {
         const { blogId } = req.params
         await Blog.findByIdAndDelete(blogId)
-        res.status(204).json({ "message": "deleted" })
+        res.status(StatusCode.SuccessNoContent)
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }

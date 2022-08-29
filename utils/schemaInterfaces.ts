@@ -1,11 +1,13 @@
+import { Request } from "express"
 import mongoose from "mongoose"
 
 export interface IUser {
-    name: String,
-    email: String,
-    age: Number,
-    status: Boolean,
-    password: String
+    id?: String,
+    name?: String,
+    email?: String,
+    age?: Number,
+    deleted?: Boolean,
+    password?: String
 }
 
 export interface IBlog {
@@ -17,4 +19,8 @@ export interface IBlog {
 
 export interface IError {
     msg: String
+}
+
+export interface IGetUserAuthInfoRequest extends Request {
+    user?: IUser
 }

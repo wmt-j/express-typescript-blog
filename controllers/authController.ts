@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt'
 import jwt, { Secret } from 'jsonwebtoken'
 import User from "../models/userModel";
 import { IUser } from "../utils/schemaInterfaces";
+import { CustomError } from "../utils/customError";
+import StatusCode from "../utils/statusCode";
+import messages from "../utils/messages";
 
 function generateAccessToken(user: IUser,) {
     const token = jwt.sign({ name: user.name, email: user.email }, <Secret>process.env.TOKEN_SECRET, { expiresIn: '3600s' })
@@ -15,11 +18,12 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
         const newUser: IUser | null = await User.create({
             name, email, password, age
         })
-        if (!newUser) next({ status: 500, message: "Cannot create new user, try again later!" })
+        if (!newUser) next(new CustomError([messages.internalError], 500))
         const jwt = generateAccessToken(newUser)
-        res.status(201).json({ newUser, jwt })
+        res.status(StatusCode.SuccessCreated).json({ newUser, jwt })
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }
 
@@ -28,16 +32,17 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
         const { email, password } = req.body
         const user = await User.findOne({ email })
         if (!user) {
-            return next({ status: 404, message: "Invalid Credentils." })
+            return next(new CustomError([messages.invalidCredentials], 404))
         }
         if (await bcrypt.compare(password, <string>user.password)) {
             const jwt = generateAccessToken(user)
-            res.status(201).json({ jwt })
+            res.status(StatusCode.SuccessOK).json({ jwt })
         }
         else {
-            return next({ status: 404, message: "Invalid Credentils." })
+            return next(new CustomError([messages.invalidCredentials], 404))
         }
     } catch (error) {
-        next({ status: 500, message: error })
+        console.log(error)
+        next(new CustomError([messages.internalError], 500))
     }
 }

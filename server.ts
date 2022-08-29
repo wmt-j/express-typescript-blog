@@ -5,7 +5,10 @@ import blogRouter from './routes/blogRoutes'
 import authRouter from './routes/authRoutes'
 import './utils/mongooseConnection'
 import handleError from './middlewares/handleError'
+import rateLimiter from './middlewares/rateLimiter'
 const app: Express = express()
+
+app.use(rateLimiter)
 
 app.use(express.json())
 
