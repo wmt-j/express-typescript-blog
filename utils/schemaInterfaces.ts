@@ -14,7 +14,9 @@ export interface IUser {
     age?: Number,
     deleted?: Boolean,
     password?: String,
-    role?: IRole[]
+    role?: IRole[],
+    otp?: String,
+    isVerified?: Boolean
 }
 
 export interface IBlog {

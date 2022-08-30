@@ -9,10 +9,12 @@ const userSchema: mongoose.Schema = new mongoose.Schema<IUser>({
     password: { type: String, required: true },
     age: Number,
     deleted: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false },
     role: [{
         type: mongoose.Types.ObjectId,
         ref: 'Role'
-    }]
+    }],
+    otp: String
 })
 
 userSchema.pre('save', async function (next) {
